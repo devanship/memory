@@ -1,0 +1,6 @@
+[submodule "hw04/memory-elixir"]
+	path = hw04/memory-elixir
+	url = https://github.com/devanship/memory
+[submodule "memory"]
+	path = memory
+	url = https://github.com/devanship/memory

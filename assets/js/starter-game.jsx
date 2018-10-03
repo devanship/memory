@@ -2,46 +2,95 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 
-export default function game_init(root) {
-  ReactDOM.render(<Starter />, root);
+export default function game_init(root, channel) {
+  ReactDOM.render(
+    <Starter channel={channel}/>, 
+    root);
 }
 
 class Starter extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { left: false };
+    this.channel = props.channel;
+
+    this.state = {
+      cards: [],
+      thisCard: null,
+      firstCard: null,
+      cardsFlipped: -1,
+      score: 0,
+      clickable: true
+    }
+
+    this.channel.join()
+    .receive("ok", this.gotView.bind(this))
+    .receive("error", resp => { console.log("Unable to join", resp) });
+
+    this.findMatches = this.findMatches.bind(this)
   }
 
-  swap(_ev) {
-    let state1 = _.assign({}, this.state, { left: !this.state.left });
-    this.setState(state1);
+  gotView(view) {
+    this.setState(view.game);
   }
 
-  hax(_ev) {
-    alert("hax!");
+  sendCard(card) {
+    this.channel.push("click", { card: card })
+    .receive("ok", this.gotView.bind(this))
+    .receive("unflip", this.sendUnflip.bind(this))
+  }
+
+  sendUnflip(view) {
+    this.gotView(view)
+      setTimeout(() => {this.channel.push("unflip").receive("ok", this.gotView.bind(this))}, 1000)
+  }
+
+  sendRestart() {
+    this.channel.push("restart").receive("ok", this.gotView.bind(this))
+  }
+
+  findMatches(cards) {
+    let matchedCards = [];
+    cards = this.state.cards
+    cards.map((card, i) => {
+       if(card.isFlipped) {
+          matchedCards.push(card)
+       } 
+    })
+    return matchedCards.length
   }
 
   render() {
-    let button = <div className="column" onMouseMove={this.swap.bind(this)}>
-      <p><button onClick={this.hax.bind(this)}>Click Me</button></p>
-    </div>;
+    const createCards = this.state.cards.map((card, i) => {
+      return <Card card={card} click={this.sendCard.bind(this)} key={i}/>
+    })
 
-    let blank = <div className="column">
-      <p>Nothing here.</p>
-    </div>;
-
-    if (this.state.left) {
-      return <div className="row">
-        {button}
-        {blank}
-      </div>;
-    }
-    else {
-      return <div className="row">
-        {blank}
-        {button}
-      </div>;
-    }
+      return (
+        <div>
+          <div className="row cardsRow" style={{ 'flex-wrap': 'wrap' }}>
+            {createCards}
+          </div>
+          <div className="row">
+            <div> Score: {this.state.score} </div>
+            <Restart restart={this.sendRestart.bind(this)}/>
+          </div>
+        </div>
+    )
   }
+}
+
+function Card(props) {
+  let card = props.card
+  let cardVal
+  return (
+    <div className="col-3">
+      <div className="card" onClick={() => props.click(card)}>
+        {card.isFlipped ? (cardVal = card.cardValue) : (cardVal = "?")}
+      </div>
+    </div>
+  )
+}
+
+function Restart(props) {
+  return <button onClick={() => props.restart()}>Restart</button>
 }
 
