@@ -14,11 +14,7 @@ config :memory, MemoryWeb.Endpoint,
   root: ".",
   version: Application.spec(:phoenix_distillery, :vsn),
   http: [:inet6, port: {:system, "PORT"}],
-<<<<<<< HEAD
   url: [host: "hw04.dpatelcs4550.com", port: 80],
-=======
-  url: [host: "memory1.dpatelcs4550.com", port: 80],
->>>>>>> d7a346bd84f9c28db386f9dd770d963c03f7ee39
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
