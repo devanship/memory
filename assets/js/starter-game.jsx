@@ -17,9 +17,10 @@ class Starter extends React.Component {
       cards: [],
       thisCard: null,
       firstCard: null,
-      cardsFlipped: -1,
+      cardsFlipped: 0,
       score: 0,
-      clickable: true
+      clickable: true,
+      status: 0
     }
 
     this.channel.join()
@@ -40,8 +41,15 @@ class Starter extends React.Component {
   }
 
   sendUnflip(view) {
+    let oldStatus = this.state.status;
     this.gotView(view)
-      setTimeout(() => {this.channel.push("unflip").receive("ok", this.gotView.bind(this))}, 1000)
+    console.log(view)
+    let newStatus = this.state.status;
+    if(newStatus > oldStatus) {
+      this.channel.push("click").receive("ok", this.gotView.bind(this))
+    } else {
+       setTimeout(() => {this.channel.push("unflip").receive("ok", this.gotView.bind(this))}, 1000);
+    }
   }
 
   sendRestart() {
@@ -52,9 +60,9 @@ class Starter extends React.Component {
     let matchedCards = [];
     cards = this.state.cards
     cards.map((card, i) => {
-       if(card.isFlipped) {
-          matchedCards.push(card)
-       } 
+      if(card.isFlipped) {
+        matchedCards.push(card)
+      } 
     })
     return matchedCards.length
   }
@@ -64,17 +72,17 @@ class Starter extends React.Component {
       return <Card card={card} click={this.sendCard.bind(this)} key={i}/>
     })
 
-      return (
-        <div>
-          <div className="row cardsRow" style={{ 'flex-wrap': 'wrap' }}>
-            {createCards}
-          </div>
-          <div className="row">
-            <div> Score: {this.state.score} </div>
-            <Restart restart={this.sendRestart.bind(this)}/>
-          </div>
-        </div>
-    )
+    return (
+      <div>
+      <div className="row cardsRow" style={{ 'flexWrap': 'wrap' }}>
+      {createCards}
+      </div>
+      <div className="row">
+      <div> Score: {this.state.score} </div>
+      <Restart restart={this.sendRestart.bind(this)}/>
+      </div>
+      </div>
+      )
   }
 }
 
@@ -83,11 +91,11 @@ function Card(props) {
   let cardVal
   return (
     <div className="col-3">
-      <div className="card" onClick={() => props.click(card)}>
-        {card.isFlipped ? (cardVal = card.cardValue) : (cardVal = "?")}
-      </div>
+    <div className="card" onClick={() => props.click(card)}>
+    {card.isFlipped ? (cardVal = card.cardValue) : (cardVal = "?")}
     </div>
-  )
+    </div>
+    )
 }
 
 function Restart(props) {
