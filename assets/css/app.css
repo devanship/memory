@@ -2,10 +2,62 @@
 
 @import "~milligram/dist/milligram";
 
+<<<<<<< HEAD
+=======
+/* This file is for your main application css. */
+
+@import "~milligram/dist/milligram";
+
+>>>>>>> d7a346bd84f9c28db386f9dd770d963c03f7ee39
 body {
 	max-width: 500px;
     margin: auto;
     margin-top: 4%;
+<<<<<<< HEAD
+=======
+}
+
+.row {
+	margin-left: 0 !important;
+	justify-content: space-between;
+	width: 100% !important;
+}
+
+h1 {
+	text-align: center;
+	color: #9b4dca;
+	margin-bottom: 10px;
+}
+
+td {
+	border-bottom: none;
+}
+
+.container {
+	padding: 0;
+}
+
+.card {
+	width: 102px;
+	height: 102px;
+	font-size: 30px;
+}
+
+.cardValue {
+	height: 100%;
+	background-color: #9b4dca;
+	padding: 27px 41px;
+	color: #fff;
+}
+
+.guess {
+	background-color: #d1d1d1;
+	padding: 27px 43px;
+}
+
+.button {
+	float: right;
+>>>>>>> d7a346bd84f9c28db386f9dd770d963c03f7ee39
 }
 
 .row {
