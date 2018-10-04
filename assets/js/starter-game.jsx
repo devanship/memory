@@ -27,7 +27,9 @@ class Starter extends React.Component {
     .receive("ok", this.gotView.bind(this))
     .receive("error", resp => { console.log("Unable to join", resp) });
 
-    this.findMatches = this.findMatches.bind(this)
+    this.sendCard = this.sendCard.bind(this)
+    this.sendUnflip = this.sendUnflip.bind(this)
+    this.sendRestart = this.sendRestart.bind(this)
   }
 
   gotView(view) {
@@ -44,11 +46,11 @@ class Starter extends React.Component {
     let oldStatus = this.state.status;
     this.gotView(view)
     console.log(view)
-    let newStatus = this.state.status;
-    if(newStatus > oldStatus) {
+    let updatedStatus = this.state.status;
+    if(updatedStatus > oldStatus) {
       this.channel.push("click").receive("ok", this.gotView.bind(this))
     } else {
-       setTimeout(() => {this.channel.push("unflip").receive("ok", this.gotView.bind(this))}, 1000);
+       setTimeout(() => {this.channel.push("unflip").receive("ok", this.gotView.bind(this))}, 500);
     }
   }
 
@@ -56,49 +58,29 @@ class Starter extends React.Component {
     this.channel.push("restart").receive("ok", this.gotView.bind(this))
   }
 
-  findMatches(cards) {
-    let matchedCards = [];
-    cards = this.state.cards
-    cards.map((card, i) => {
-      if(card.isFlipped) {
-        matchedCards.push(card)
-      } 
-    })
-    return matchedCards.length
-  }
-
   render() {
     const createCards = this.state.cards.map((card, i) => {
-      return <Card card={card} click={this.sendCard.bind(this)} key={i}/>
+    let cardVal
+    return (
+      <div className="col-3" key={i}>
+        <div className="card" onClick={() => this.sendCard(card)}>
+          {card.isFlipped ? (cardVal = card.cardValue) : (cardVal = "?")}
+        </div>
+      </div>
+      )
     })
 
     return (
       <div>
-      <div className="row cardsRow" style={{ 'flexWrap': 'wrap' }}>
-      {createCards}
+        <div className="row cardsRow" style={{ 'flexWrap': 'wrap' }}>
+          {createCards}
+        </div>
+        <div className="row">
+          <div> Score: {this.state.score} </div>
+          <button onClick={() => this.sendRestart()}>Restart</button>
+        </div>
       </div>
-      <div className="row">
-      <div> Score: {this.state.score} </div>
-      <Restart restart={this.sendRestart.bind(this)}/>
-      </div>
-      </div>
-      )
-  }
-}
-
-function Card(props) {
-  let card = props.card
-  let cardVal
-  return (
-    <div className="col-3">
-    <div className="card" onClick={() => props.click(card)}>
-    {card.isFlipped ? (cardVal = card.cardValue) : (cardVal = "?")}
-    </div>
-    </div>
     )
-}
-
-function Restart(props) {
-  return <button onClick={() => props.restart()}>Restart</button>
+  }
 }
 

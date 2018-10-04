@@ -29,11 +29,10 @@ defmodule MemoryWeb.GamesChannel do
     {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
   end
 
-# Sends a reset request
-def handle_in("restart", payload, socket) do
-  game = Game.new()
-  socket = assign(socket, :game, game)
-  {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
-end
+  def handle_in("restart", payload, socket) do
+    game = Game.new()
+    socket = assign(socket, :game, game)
+    {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
+  end
 
 end
