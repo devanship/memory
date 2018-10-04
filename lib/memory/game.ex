@@ -26,81 +26,66 @@ defmodule Memory.Game do
 
   defp shuffle() do
     [
-      %{cardValue: "A", i: 1, isFlipped: false},
-      %{cardValue: "A", i: 2, isFlipped: false},
-      %{cardValue: "B", i: 3, isFlipped: false},
-      %{cardValue: "B", i: 4, isFlipped: false},
-      %{cardValue: "C", i: 5, isFlipped: false},
-      %{cardValue: "C", i: 6, isFlipped: false},
-      %{cardValue: "D", i: 7, isFlipped: false},
-      %{cardValue: "D", i: 8, isFlipped: false},
-      %{cardValue: "E", i: 9, isFlipped: false},
-      %{cardValue: "E", i: 10, isFlipped: false},
-      %{cardValue: "F", i: 11, isFlipped: false},
-      %{cardValue: "F", i: 12, isFlipped: false},
-      %{cardValue: "G", i: 13, isFlipped: false},
-      %{cardValue: "G", i: 14, isFlipped: false},
-      %{cardValue: "H", i: 15, isFlipped: false},
-      %{cardValue: "H", i: 16, isFlipped: false}
+      %{cardValue: "A", isFlipped: false},
+      %{cardValue: "A", isFlipped: false},
+      %{cardValue: "B", isFlipped: false},
+      %{cardValue: "B", isFlipped: false},
+      %{cardValue: "C", isFlipped: false},
+      %{cardValue: "C", isFlipped: false},
+      %{cardValue: "D", isFlipped: false},
+      %{cardValue: "D", isFlipped: false},
+      %{cardValue: "E", isFlipped: false},
+      %{cardValue: "E", isFlipped: false},
+      %{cardValue: "F", isFlipped: false},
+      %{cardValue: "F", isFlipped: false},
+      %{cardValue: "G", isFlipped: false},
+      %{cardValue: "G", isFlipped: false},
+      %{cardValue: "H", isFlipped: false},
+      %{cardValue: "H", isFlipped: false}
     ]
     |> Enum.shuffle()
   end
 
-  # https://stackoverflow.com/questions/31990134/how-to-convert-map-keys-from-strings-to-atoms-in-elixir
-  defp string_to_atom(l) do 
-    for {key, val} <- l, into: %{}, do: {String.to_atom(key), val}
-  end
-
-  defp flip(cards, card) do
-    ind = Enum.find_index(cards, fn c -> c.i == card.i end)
-    List.replace_at(cards, ind, %{
-      cardValue: Enum.at(cards, ind).cardValue,
-      i: Enum.at(cards, ind).i,
-      isFlipped: true,
-      })
+  def flip(cards, i) do
+    List.replace_at(cards, i, 
+      %{cardValue: Enum.at(cards, i).cardValue,
+        isFlipped: true
+        })
   end
 
   def unflip(game) do 
     if game.cardsFlipped == 2 do
-      cardId = Enum.find_index(game.cards, fn(x) -> x.i == game.thisCard end)
-      firstId = Enum.find_index(game.cards, fn(x) -> x.i == game.firstCard end)
+      cardId = game.thisCard
+      firstId = game.firstCard
 
-      newCards =
+      updatedCards =
       List.replace_at(game.cards,
-        cardId,
-        %{cardValue: Enum.at(game.cards, cardId).cardValue,
-        i: Enum.at(game.cards, cardId).i,
-        isFlipped: false,
-        })
-      |> List.replace_at(firstId,
-        %{cardValue: Enum.at(game.cards, firstId).cardValue,
-        i: Enum.at(game.cards, firstId).i,
-        isFlipped: false,
-        })
-      Map.put(game, :cards, newCards)
+        game.thisCard,
+        %{cardValue: Enum.at(game.cards, game.thisCard).cardValue,
+          isFlipped: false
+          })
+      |> List.replace_at(game.firstCard,
+        %{cardValue: Enum.at(game.cards, game.firstCard).cardValue,
+          isFlipped: false
+          })
+      Map.put(game, :cards, updatedCards)
       |> Map.put(:cardsFlipped, 0)
       |> Map.put(:clickable, true)
 
     end
   end
 
-  def checkMatch(game, card) do
-    if game.cardsFlipped != 0 && (Enum.at(game.cards, Enum.find_index(game.cards, fn(x) -> x.i == game.firstCard end)).cardValue == card.cardValue) do
-      cardId = Enum.find_index(game.cards, fn(x) -> x.i == card.i end)
-      firstId = Enum.find_index(game.cards, fn(x) -> x.i == game.firstCard end)
-
+  def checkMatch(game, i) do
+    if game.cardsFlipped != 0 && (Enum.at(game.cards, game.firstCard).cardValue == Enum.at(game.cards, i).cardValue) do
       updatedCards =
-      List.replace_at(game.cards,
-        cardId,
-        %{cardValue: Enum.at(game.cards, cardId).cardValue,
-        i: Enum.at(game.cards, cardId).i,
-        isFlipped: true,
-        })                  
-      |> List.replace_at(firstId,
-        %{cardValue: Enum.at(game.cards, firstId).cardValue,
-        i: Enum.at(game.cards, firstId).i,
-        isFlipped: true,
-        })
+      List.replace_at(game.cards, i,
+        %{cardValue: Enum.at(game.cards, i).cardValue,
+          isFlipped: true
+          })                  
+      |> List.replace_at(game.firstCard,
+        %{cardValue: Enum.at(game.cards, game.firstCard).cardValue,
+          isFlipped: true
+          })
       Map.put(game, :cards, updatedCards)
       |> Map.put(:status, game.status + 1)
       |> Map.put(:cardsFlipped, 0)
@@ -112,18 +97,17 @@ defmodule Memory.Game do
     end
   end
 
-  def click(game, card) do
-    updatedCard = string_to_atom(card)
-    if not updatedCard.isFlipped && game.clickable && (game.cardsFlipped == 0 || game.firstCard != updatedCard.i) do
+  def click(game, i) do
+    card = Enum.at(game.cards, i)
+    if not card.isFlipped && game.clickable && (game.cardsFlipped == 0 || game.firstCard != i) do
       updatedGame = game
-      |> Map.put(:thisCard, updatedCard.i)
-      |> Map.put(:cards, flip(game.cards, updatedCard))
+      |> Map.put(:thisCard, i)
+      |> Map.put(:cards, flip(game.cards, i))
 
-      updatedCard = Enum.at(updatedGame.cards, Enum.find_index(updatedGame.cards, fn c -> c.i == updatedCard.i end))
-      checkMatch(updatedGame, updatedCard)
-      |> Map.put(:firstCard, if(game.cardsFlipped == 0, do: updatedCard.i, else: game.firstCard))
+      card = Enum.at(updatedGame.cards, i)
+      checkMatch(updatedGame, i)
+      |> Map.put(:firstCard, if(game.cardsFlipped == 0, do: i, else: game.firstCard))
       |> Map.put(:score, game.score + 1)
-      |> IO.inspect
     else
       game
     end

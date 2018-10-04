@@ -11,8 +11,8 @@ defmodule MemoryWeb.GamesChannel do
     {:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
   end
 
-  def handle_in("click", %{"card" => c}, socket) do
-    game = Game.click(socket.assigns[:game], c)
+  def handle_in("click", %{"i" => i}, socket) do
+    game = Game.click(socket.assigns[:game], i)
     socket = assign(socket, :game, game)
     Memory.GameBackup.save(socket.assigns[:name], socket.assigns[:game])
     if(game.cardsFlipped == 2) do

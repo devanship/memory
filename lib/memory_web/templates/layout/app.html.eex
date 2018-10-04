@@ -6,9 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Memory · Phoenix Framework</title>
     <link rel="stylesheet" href="<%= Routes.static_url(@conn, "/css/app.css") %>"/>
-     <script>
-       window.userToken = "TODO";
-     </script>
+    <script>
+      window.userToken = "TODO";
+      function joinGame() {
+        const gameName = document.getElementById("game-name").value;
+        const link = window.location.href + "game/" + gameName
+        window.location.replace(link);
+      }
+    </script>
   </head>
   <body>
     <main role="main" class="container">

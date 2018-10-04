@@ -27,22 +27,22 @@ class Starter extends React.Component {
     .receive("ok", this.gotView.bind(this))
     .receive("error", resp => { console.log("Unable to join", resp) });
 
-    this.sendCard = this.sendCard.bind(this)
-    this.sendUnflip = this.sendUnflip.bind(this)
-    this.sendRestart = this.sendRestart.bind(this)
+    this.click = this.click.bind(this)
+    this.unflip = this.unflip.bind(this)
+    this.restart = this.restart.bind(this)
   }
 
   gotView(view) {
     this.setState(view.game);
   }
 
-  sendCard(card) {
-    this.channel.push("click", { card: card })
+  click(i) {
+    this.channel.push("click", { i: i })
     .receive("ok", this.gotView.bind(this))
-    .receive("unflip", this.sendUnflip.bind(this))
+    .receive("unflip", this.unflip.bind(this))
   }
 
-  sendUnflip(view) {
+  unflip(view) {
     let oldStatus = this.state.status;
     this.gotView(view)
     console.log(view)
@@ -54,17 +54,18 @@ class Starter extends React.Component {
     }
   }
 
-  sendRestart() {
+  restart() {
     this.channel.push("restart").receive("ok", this.gotView.bind(this))
   }
 
   render() {
+
     const createCards = this.state.cards.map((card, i) => {
     let cardVal
     return (
       <div className="col-3" key={i}>
-        <div className="card" onClick={() => this.sendCard(card)}>
-          {card.isFlipped ? (cardVal = card.cardValue) : (cardVal = "?")}
+        <div className="card" onClick={() => this.click(i)}>
+          {card.isFlipped ? (cardVal = <div className="cardValue">{card.cardValue}</div>) : (cardVal = <div className="guess">?</div>)}
         </div>
       </div>
       )
@@ -77,7 +78,7 @@ class Starter extends React.Component {
         </div>
         <div className="row">
           <div> Score: {this.state.score} </div>
-          <button onClick={() => this.sendRestart()}>Restart</button>
+          <button onClick={() => this.restart()}>Restart</button>
         </div>
       </div>
     )

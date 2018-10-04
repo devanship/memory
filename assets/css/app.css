@@ -12,6 +12,7 @@ body {
 	margin-left: 0 !important;
 	justify-content: space-between;
 	width: 100% !important;
+	flex-wrap: wrap;
 }
 
 h1 {
@@ -20,12 +21,8 @@ h1 {
 	margin-bottom: 10px;
 }
 
-td {
-	border-bottom: none;
-}
-
-.container {
-	padding: 0;
+.col-3 {
+	padding-bottom: 10px;
 }
 
 .card {
@@ -44,10 +41,7 @@ td {
 .guess {
 	background-color: #d1d1d1;
 	padding: 27px 43px;
-}
-
-.button {
-	float: right;
+	color: #fff;
 }
 
 
