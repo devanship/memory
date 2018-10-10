@@ -28,11 +28,11 @@ defmodule Memory.Game do
     }
   end
 
-  def client_view(game) do
+  def client_view(game, player) do
     players = Enum.map game.players, fn {playerName, playerInfo} ->
-      %{ name: playerName, 
-          score: playerInfo.score, 
-          isActive: playerInfo.isActive, 
+      %{ name: playerName,
+          score: playerInfo.score,
+          isActive: playerInfo.isActive,
           cardsFlipped: playerInfo.cardsFlipped,
           playerId: nil
         }
@@ -49,8 +49,8 @@ defmodule Memory.Game do
     }
   end
 
-  def setPlayerId(game, player) do 
-    cond do 
+  def setPlayerId(game, player) do
+    cond do
       player == Enum.at(game.player, 0) ->
         Map.put(player, :playerId, 0)
       player == Enum.at(game.player, 1) ->
@@ -83,13 +83,13 @@ defmodule Memory.Game do
   end
 
   def flip(cards, i) do
-    List.replace_at(cards, i, 
+    List.replace_at(cards, i,
       %{cardValue: Enum.at(cards, i).cardValue,
         isFlipped: true
         })
   end
 
-  def unflip(game, player) do 
+  def unflip(game, player) do
     if player.cardsFlipped == 2 do
       cardId = game.thisCard
       firstId = game.firstCard
@@ -119,7 +119,7 @@ defmodule Memory.Game do
       List.replace_at(game.cards, i,
         %{cardValue: Enum.at(game.cards, i).cardValue,
           isFlipped: true
-          })                  
+          })
       |> List.replace_at(game.firstCard,
         %{cardValue: Enum.at(game.cards, game.firstCard).cardValue,
           isFlipped: true
@@ -130,7 +130,7 @@ defmodule Memory.Game do
 
       player
       |> Map.put(:cardsFlipped, 0)
-    else 
+    else
       game
       |> Map.put(:clickable, game.cardsFlipped == 0)
 
