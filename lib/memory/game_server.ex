@@ -26,9 +26,9 @@ defmodule Memory.GameServer do
 # TODO create this method
   def add_user(game, player) do
     players = Enum.map game.players, fn {name, info} ->
-      {name, %{ default_player() | score: info.score || 0 }}
+      {name, %{ Game.default_player() | score: info.score || 0 }}
     end
-    Map.put(default_player(), :players, Enum.into(game.players, %{}))
+    Map.put(Game.default_player(), :players, Enum.into(game.players, %{}))
   end
 
 end
