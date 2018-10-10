@@ -14,13 +14,21 @@ class Starter extends React.Component {
     this.channel = props.channel;
 
     this.state = {
+      // cards: [],
+      // thisCard: null,
+      // firstCard: null,
+      // cardsFlipped: 0,
+      // score: 0,
+      // clickable: true,
+      // status: 0
+
       cards: [],
       thisCard: null,
       firstCard: null,
-      cardsFlipped: 0,
       score: 0,
       clickable: true,
-      status: 0
+      status: 0,
+      players: [],
     }
 
     this.channel.join()
@@ -34,6 +42,7 @@ class Starter extends React.Component {
 
   gotView(view) {
     this.setState(view.game);
+    console.log("hello")
   }
 
   click(i) {

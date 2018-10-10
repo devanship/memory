@@ -6,22 +6,58 @@ defmodule Memory.Game do
       thisCard: nil,
       firstCard: nil,
       score: 0,
-      cardsFlipped: 0,
       clickable: true,
-      status: 0
+      status: 0,
+      players: [],
+    }
+  end
+
+  def new(players) do
+    players = Enum.map players, fn {name, info} ->
+      {name, %{ default_player() | score: info.score || 0 }}
+    end
+    Map.put(new(), :players, Enum.into(players, %{}))
+  end
+
+  def default_player() do
+    %{
+      score: 0,
+      isActive: true,
+      cardsFlipped: 0,
+      playerId: nil
     }
   end
 
   def client_view(game) do
+    players = Enum.map game.players, fn {playerName, playerInfo} ->
+      %{ name: playerName, 
+          score: playerInfo.score, 
+          isActive: playerInfo.isActive, 
+          cardsFlipped: playerInfo.cardsFlipped,
+          playerId: nil
+        }
+    end
+
     %{
       cards: game.cards,
       thisCard: game.thisCard,
       firstCard: game.firstCard,
       score: game.score,
-      cardsFlipped: game.cardsFlipped,
       clickable: game.clickable,
-      status: game.status
+      status: game.status,
+      players: Enum.map(game.players, fn p -> setPlayerId(game, p) end)
     }
+  end
+
+  def setPlayerId(game, player) do 
+    cond do 
+      player == Enum.at(game.player, 0) ->
+        Map.put(player, :playerId, 0)
+      player == Enum.at(game.player, 1) ->
+        Map.put(player, :playerId, 1)
+      true ->
+        Map.put(player, :playerId, -1)
+    end
   end
 
   defp shuffle() do
@@ -53,8 +89,8 @@ defmodule Memory.Game do
         })
   end
 
-  def unflip(game) do 
-    if game.cardsFlipped == 2 do
+  def unflip(game, player) do 
+    if player.cardsFlipped == 2 do
       cardId = game.thisCard
       firstId = game.firstCard
 
@@ -69,14 +105,16 @@ defmodule Memory.Game do
           isFlipped: false
           })
       Map.put(game, :cards, updatedCards)
-      |> Map.put(:cardsFlipped, 0)
       |> Map.put(:clickable, true)
 
+      player
+      |> Map.put(:cardsFlipped, 0)
+      |> switchPlayer(game)
     end
   end
 
-  def checkMatch(game, i) do
-    if game.cardsFlipped != 0 && (Enum.at(game.cards, game.firstCard).cardValue == Enum.at(game.cards, i).cardValue) do
+  def checkMatch(game, player, i) do
+    if player.cardsFlipped != 0 && (Enum.at(game.cards, game.firstCard).cardValue == Enum.at(game.cards, i).cardValue) do
       updatedCards =
       List.replace_at(game.cards, i,
         %{cardValue: Enum.at(game.cards, i).cardValue,
@@ -88,28 +126,61 @@ defmodule Memory.Game do
           })
       Map.put(game, :cards, updatedCards)
       |> Map.put(:status, game.status + 1)
-      |> Map.put(:cardsFlipped, 0)
       |> Map.put(:clickable, true)
+
+      player
+      |> Map.put(:cardsFlipped, 0)
     else 
       game
-      |> Map.put(:cardsFlipped, game.cardsFlipped + 1)
       |> Map.put(:clickable, game.cardsFlipped == 0)
+
+      player
+      |> Map.put(:cardsFlipped, game.cardsFlipped + 1)
     end
   end
 
-  def click(game, i) do
-    card = Enum.at(game.cards, i)
-    if not card.isFlipped && game.clickable && (game.cardsFlipped == 0 || game.firstCard != i) do
-      updatedGame = game
-      |> Map.put(:thisCard, i)
-      |> Map.put(:cards, flip(game.cards, i))
+  # def isPlayerActive(game, player) do
+  #   players = game.players
+  #   playerInfo = players[:player]
+  #   isActive = playerInfo[:isActive]
+  #   return isActive
+  # end
 
-      card = Enum.at(updatedGame.cards, i)
-      checkMatch(updatedGame, i)
-      |> Map.put(:firstCard, if(game.cardsFlipped == 0, do: i, else: game.firstCard))
-      |> Map.put(:score, game.score + 1)
-    else
-      game
+  def switchPlayer(game, player) do
+    cond do
+      player.playerId == 0 ->
+        player
+        |> Map.put(:isActive, false)
+        nextPlayer = Enum.at(game.players, 1)
+        |> Map.put(:isActive, true)
+      player.playerId == 1 ->
+        player
+        |> Map.put(:isActive, false)
+        nextPlayer = Enum.at(game.players, 0)
+        |> Map.put(:isActive, true)
+      player.playerId == -1 ->
+        player
+        |> Map.put(:isActive, false)
+    end
+  end
+
+  def click(game, player, i) do
+    if player.isActive do
+      card = Enum.at(game.cards, i)
+      if not card.isFlipped && game.clickable && (player.cardsFlipped == 0 || game.firstCard != i) do
+        updatedGame = game
+        |> Map.put(:thisCard, i)
+        |> Map.put(:cards, flip(game.cards, i))
+
+        card = Enum.at(updatedGame.cards, i)
+        checkMatch(updatedGame, player, i)
+        |> Map.put(:firstCard, if(game.cardsFlipped == 0, do: i, else: game.firstCard))
+        |> Map.put(:score, game.score + 1)
+
+        switchPlayer(game, player)
+      else
+        game
+      end
     end
   end
 
