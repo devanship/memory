@@ -13,7 +13,6 @@ defmodule Memory.GameServer do
   end
 
 
-
   ## Implementations
   def init(state) do
     {:ok, state}
@@ -24,5 +23,12 @@ defmodule Memory.GameServer do
     {:reply, Game.client_view(gg, user), Map.put(state, game, gg)}
   end
 
+# TODO create this method
+  def add_user(game, player) do
+    players = Enum.map game.players, fn {name, info} ->
+      {name, %{ Game.default_player() | score: info.score || 0 }}
+    end
+    Map.put(Game.default_player(), :players, Enum.into(game.players, %{}))
+  end
 
 end

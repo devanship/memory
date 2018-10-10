@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 export default function game_init(root, channel) {
   ReactDOM.render(
-    <Starter channel={channel}/>, 
+    <Starter channel={channel}/>,
     root);
 }
 
@@ -42,7 +42,7 @@ class Starter extends React.Component {
 
   gotView(view) {
     this.setState(view.game);
-    console.log("hello")
+    console.log(view.game)
   }
 
   click(i) {
