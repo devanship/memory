@@ -28,6 +28,14 @@ defmodule Memory.Game do
     }
   end
 
+  # TODO This does the same thing as new() ?? but calls default players...
+  def add_user(game, player) do
+    players = Enum.map game.players, fn {name, info} ->
+      {name, %{ default_player() | score: info.score || 0 }}
+    end
+    Map.put(default_player(), :players, Enum.into(game.players, %{}))
+  end
+
   def client_view(game, player) do
     players = Enum.map game.players, fn {playerName, playerInfo} ->
       %{ name: playerName,
