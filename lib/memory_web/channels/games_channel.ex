@@ -5,26 +5,27 @@ defmodule MemoryWeb.GamesChannel do
 
   def join("games:" <> game, payload, socket) do
     socket = assign(socket, :game, game)
-    GameServer.add_user(game, socket.assigns[:user])
+    GameServer.add_user(:game, socket.assigns[:user])
     view = GameServer.view(game, socket.assigns[:user])
     {:ok, %{"join" => game, "game" => view}, socket}
   end
 
-  # def handle_in("click", %{"i" => i}, socket) do
-  #   view = GameServer.guess(socket.assigns[:game], socket.assigns[:user], i)
-  #   # if(game.cardsFlipped == 2) do
-  #   #   {:reply, {:unflip, %{ "game" => view }}, socket}
-  #   # else
-  #   #   {:reply, {:ok, %{ "game" => view }}, socket}
-  #   # end
-  #   {:reply, {:ok, %{ "game" => view }}, socket}
-  # end
-  
-  # TODO fix this handle_in
-  def handle_in("click", payload, socket) do
+  def handle_in("click", %{"i" => i}, socket) do
+    game = Game.new()
     view = GameServer.unflip(socket.assigns[:game], socket.assigns[:user])
+    if(game.cardsFlipped == 2) do
+      {:reply, {:unflip, %{ "game" => view }}, socket}
+    else
+      {:reply, {:ok, %{ "game" => view }}, socket}
+    end
     {:reply, {:ok, %{ "game" => view }}, socket}
   end
+
+  # TODO fix this handle_in
+  # def handle_in("click", payload, socket) do
+  #   view = GameServer.unflip(socket.assigns[:game], socket.assigns[:user])
+  #   {:reply, {:ok, %{ "game" => view }}, socket}
+  # end
 
   def handle_in("unflip", payload, socket) do
     #Memory.GameBackup.save(socket.assigns[:name], socket.assigns[:game])
