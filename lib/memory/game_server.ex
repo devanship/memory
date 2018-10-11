@@ -23,6 +23,21 @@ defmodule Memory.GameServer do
     {:reply, Game.client_view(gg, user), Map.put(state, game, gg)}
   end
 
+  def handle_call({:unflip, game, user}, _from, state) do
+    gg = Map.get(state, game, Game.new)
+    |> Game.unflip(user)
+    view = Game.client_view(gg, user)
+    {:reply, view, Map.put(state, game, gg)}
+  end
+
+  def handle_call({:click, game, user, i}, _from, state) do
+    gg = Map.get(state, game, Game.new)
+    |> Game.click(user, i)
+    view = Game.client_view(gg, user)
+    {:reply, view, Map.put(state, game, gg)}
+  end
+
+
 # TODO create this method
   def add_user(game, player) do
     players = Enum.map game.players, fn {name, info} ->
