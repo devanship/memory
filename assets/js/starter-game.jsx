@@ -14,14 +14,6 @@ class Starter extends React.Component {
     this.channel = props.channel;
 
     this.state = {
-      // cards: [],
-      // thisCard: null,
-      // firstCard: null,
-      // cardsFlipped: 0,
-      // score: 0,
-      // clickable: true,
-      // status: 0
-
       cards: [],
       thisCard: null,
       firstCard: null,
@@ -29,6 +21,7 @@ class Starter extends React.Component {
       clickable: true,
       status: 0,
       players: [],
+      observers: [],
     }
 
     this.channel.join()
@@ -42,7 +35,6 @@ class Starter extends React.Component {
 
   gotView(view) {
     this.setState(view.game);
-    console.log(view.game)
   }
 
   click(i) {
@@ -54,7 +46,6 @@ class Starter extends React.Component {
   unflip(view) {
     let oldStatus = this.state.status;
     this.gotView(view)
-    console.log(view)
     let updatedStatus = this.state.status;
     if(updatedStatus > oldStatus) {
       this.channel.push("click").receive("ok", this.gotView.bind(this))
@@ -79,9 +70,19 @@ class Starter extends React.Component {
       </div>
       )
     })
+    const players = this.state.players.map((player, i) => {
+      return (
+        <div className="col-3" key={i}>
+        <div className="player">
+          Player: {player.name}
+        </div>
+      </div>
+      )
+    })
 
     return (
       <div>
+        <div className="row names">{players}</div>
         <div className="row cardsRow" style={{ 'flexWrap': 'wrap' }}>
           {createCards}
         </div>

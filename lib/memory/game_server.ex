@@ -12,6 +12,17 @@ defmodule Memory.GameServer do
     GenServer.call(__MODULE__, {:view, game, user})
   end
 
+  def click(game, user, i) do
+    GenServer.call(__MODULE__, {:click, game, user, i})
+  end
+
+  def unflip(game, user) do
+    GenServer.call(__MODULE__, {:unflip, game, user})
+  end
+
+  def add_user(game, id) do
+    GenServer.call(__MODULE__, {:add_user, game, id})
+  end
 
   ## Implementations
   def init(state) do
@@ -20,6 +31,7 @@ defmodule Memory.GameServer do
 
   def handle_call({:view, game, user}, _from, state) do
     gg = Map.get(state, game, Game.new)
+    |> Game.add_user(user)
     {:reply, Game.client_view(gg, user), Map.put(state, game, gg)}
   end
 
@@ -30,20 +42,10 @@ defmodule Memory.GameServer do
     {:reply, view, Map.put(state, game, gg)}
   end
 
-  def handle_call({:click, game, user, i}, _from, state) do
+  def handle_call({:click, game, user, i}, _from, state) do 
     gg = Map.get(state, game, Game.new)
     |> Game.click(user, i)
     view = Game.client_view(gg, user)
     {:reply, view, Map.put(state, game, gg)}
   end
-
-
-# TODO create this method
-  def add_user(game, player) do
-    players = Enum.map game.players, fn {name, info} ->
-      {name, %{ Game.default_player() | score: info.score || 0 }}
-    end
-    Map.put(Game.default_player(), :players, Enum.into(game.players, %{}))
-  end
-
 end
