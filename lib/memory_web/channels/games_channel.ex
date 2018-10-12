@@ -1,38 +1,39 @@
 defmodule MemoryWeb.GamesChannel do
   use MemoryWeb, :channel
 
-  alias Memory.Game
+  alias Memory.GameServer
 
-  def join("games:" <> name, payload, socket) do
-    game = Memory.GameBackup.load(name) || Game.new()
-    socket = socket
-    |> assign(:game, game)
-    |> assign(:name, name)
-    {:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
+  def join("games:" <> game, payload, socket) do
+    socket = assign(socket, :game, game)
+    view = GameServer.view(game, socket.assigns[:user])
+    |>IO.inspect
+    {:ok, %{"join" => game, "game" => view}, socket}
+
   end
 
   def handle_in("click", %{"i" => i}, socket) do
-    game = Game.click(socket.assigns[:game], i)
-    socket = assign(socket, :game, game)
-    Memory.GameBackup.save(socket.assigns[:name], socket.assigns[:game])
-    if(game.cardsFlipped == 2) do
-      {:reply, {:unflip, %{ "game" => Game.client_view(game) }}, socket}
-    else
-      {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
-    end
-  end
+    view = GameServer.click(socket.assigns[:game], socket.assigns[:user], i)
+    |> IO.inspect
+    player = Enum.find(view.players, fn p -> p.name == socket.assigns[:user] end)
+    broadcast(socket, "click", view)
+    if(player.cardsFlipped == 2) do
+       {:reply, {:unflip, %{ "game" => view }}, socket}
+     else
+       {:noreply, socket}
+     end
+   end
 
   def handle_in("unflip", payload, socket) do
-    game = Game.unflip(socket.assigns[:game])
-    socket = assign(socket, :game, game)
-    Memory.GameBackup.save(socket.assigns[:name], socket.assigns[:game])
-    {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
+    view = GameServer.unflip(socket.assigns[:game], socket.assigns[:user])
+    broadcast(socket, "unflip", view)
+    {:reply, {:ok, %{ "game" => view }}, socket}
+
   end
 
   def handle_in("restart", payload, socket) do
-    game = Game.new()
-    socket = assign(socket, :game, game)
-    {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
+    view = GameServer.restart(socket.assigns[:game], socket.assigns[:user])
+    broadcast(socket, "restart", view)
+    {:reply, {:ok, %{ "game" => view }}, socket}
   end
 
 end

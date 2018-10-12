@@ -2,9 +2,11 @@
 </script>
 <div class="row">
   <div class="col">
-    <h1 id="index-page">Enter a game name :</h1>
-    <p><input type="text" id="game-name" maxlength="8"/></p>
-    <p id="join-button"><button type="button" class="btn btn-primary" onClick="joinGame()">Join</button></p>
-
+    <h1 id="index-page">Join Game</h1>
+    <%= form_for @conn, "/join", [as: :join], fn f -> %>
+      <p>Your Name: <%= text_input f, :user %></p>
+      <p>Game Name: <%= text_input f, :game %></p>
+      <p onClick="joinGame()"><%= submit "Join" %>
+    <% end %>
   </div>
 </div>
