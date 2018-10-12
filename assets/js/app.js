@@ -20,6 +20,7 @@ import game_init from "./starter-game";
 
 function start() {
 	let root = document.getElementById('root');
+	socket.connect();
 	if(root) {
     let channel = socket.channel("games:" + window.gameName, {});
 		game_init(root, channel);
