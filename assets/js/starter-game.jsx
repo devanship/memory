@@ -17,12 +17,24 @@ class Starter extends React.Component {
       cards: [],
       thisCard: null,
       firstCard: null,
-      score: 0,
+      clicks: 0,
       clickable: true,
       status: 0,
       players: [],
       observers: [],
     }
+
+    this.channel.on("click", (game) => {
+      this.setState(game);
+    });
+
+    this.channel.on("unflip", (game) => {
+      this.setState(game);
+    });
+
+    this.channel.on("restart", (game) => {
+      this.setState(game);
+    });
 
     this.channel.join()
     .receive("ok", this.gotView.bind(this))
@@ -37,25 +49,26 @@ class Starter extends React.Component {
     this.setState(view.game);
   }
 
+
   click(i) {
     this.channel.push("click", { i: i })
-    .receive("ok", this.gotView.bind(this))
+    // .receive("ok", this.gotView.bind(this))
     .receive("unflip", this.unflip.bind(this))
   }
 
   unflip(view) {
-    let oldStatus = this.state.status;
+    //  let oldStatus = this.state.status;
     this.gotView(view)
-    let updatedStatus = this.state.status;
-    if(updatedStatus > oldStatus) {
-      this.channel.push("click").receive("ok", this.gotView.bind(this))
-    } else {
-       setTimeout(() => {this.channel.push("unflip").receive("ok", this.gotView.bind(this))}, 500);
-    }
+    // let updatedStatus = this.state.status;
+    // if(updatedStatus > oldStatus) {
+    //    this.channel.push("click").receive("ok", this.gotView.bind(this))
+    // } else {
+        setTimeout(() => {this.channel.push("unflip")}, 500);
+    // }
   }
 
   restart() {
-    this.channel.push("restart").receive("ok", this.gotView.bind(this))
+    this.channel.push("restart")
   }
 
   render() {
@@ -80,17 +93,24 @@ class Starter extends React.Component {
       )
     })
 
-    return (
-      <div>
-        <div className="row names">{players}</div>
-        <div className="row cardsRow" style={{ 'flexWrap': 'wrap' }}>
-          {createCards}
-        </div>
-        <div className="row">
-          <div> Score: {this.state.score} </div>
-          <button onClick={() => this.restart()}>Restart</button>
-        </div>
-      </div>
-    )
+
+      if(this.state.players.length >= 2) {
+        return (
+          <div>
+            <div className="row names">{players}</div>
+            <div className="row cardsRow" style={{ 'flexWrap': 'wrap' }}>
+              {createCards}
+            </div>
+            <div className="row">
+              <div> Click: {this.state.clicks} </div>
+              <button onClick={() => this.restart()}>Restart</button>
+            </div>
+          </div>
+        )
+      } else {
+        return (
+          <div className="waiting">Waiting for another player...</div>
+        )
+      }
   }
 }

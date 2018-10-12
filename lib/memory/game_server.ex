@@ -20,8 +20,8 @@ defmodule Memory.GameServer do
     GenServer.call(__MODULE__, {:unflip, game, user})
   end
 
-  def add_user(game, id) do
-    GenServer.call(__MODULE__, {:add_user, game, id})
+  def restart() do
+    GenServer.call(__MODULE__, {:restart})
   end
 
   ## Implementations
@@ -36,16 +36,27 @@ defmodule Memory.GameServer do
   end
 
   def handle_call({:unflip, game, user}, _from, state) do
-    gg = Map.get(state, game, Game.new)
+    gg = Map.get(state, game)
     |> Game.unflip(user)
     view = Game.client_view(gg, user)
+    MemoryWeb.Endpoint.broadcast("games:" <> game, "unflip", view)
     {:reply, view, Map.put(state, game, gg)}
   end
 
   def handle_call({:click, game, user, i}, _from, state) do 
-    gg = Map.get(state, game, Game.new)
+    gg = Map.get(state, game)
     |> Game.click(user, i)
     view = Game.client_view(gg, user)
+    MemoryWeb.Endpoint.broadcast("games:" <> game, "click", view)
     {:reply, view, Map.put(state, game, gg)}
   end
+
+  def handle_call({:restart, game, user}, _from, state) do 
+    gg = Map.get(state, game, Game.new())
+    |> Game.restart(user)
+    view = Game.client_view(gg, user)
+    MemoryWeb.Endpoint.broadcast("games:" <> game, "click", view)
+    {:reply, view, Map.put(state, game, gg)}
+  end
+
 end

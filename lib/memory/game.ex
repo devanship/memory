@@ -17,7 +17,7 @@ defmodule Memory.Game do
       cards: shuffle(),
       thisCard: nil,
       firstCard: nil,
-      score: 0,
+      clicks: 0,
       clickable: true,
       status: 0,
       players: default_player(),
@@ -30,7 +30,7 @@ defmodule Memory.Game do
       cards: game.cards,
       thisCard: game.thisCard,
       firstCard: game.firstCard,
-      score: game.score,
+      clicks: game.clicks,
       clickable: game.clickable,
       status: game.status,
       players: game.players,
@@ -54,16 +54,6 @@ defmodule Memory.Game do
           Map.put(game, :players, [p1, p2])
         end
       end
-    # else
-    #   p1 
-    #   |> Map.get(:name)
-    #   p2
-    #   |> Map.get(:name)
-    #   observers = Map.get(game, :observers) ++ [name]
-    #   |> Enum.uniq()
-    #   |> Enum.filter(fn(name) -> name != p1 and name != p2 end)
-
-    #   Map.put(game, :observers, observers)
     game
   end
 
@@ -212,7 +202,7 @@ defmodule Memory.Game do
         card = Enum.at(updatedGame.cards, i)
         checkMatch(updatedGame, player, i)
         |> Map.put(:firstCard, if(player.cardsFlipped == 0, do: i, else: game.firstCard))
-        |> Map.put(:score, game.score + 1)
+        |> Map.put(:clicks, game.clicks + 1)
 
       else
         game
@@ -221,7 +211,7 @@ defmodule Memory.Game do
     end
   end
 
-  def restart() do
+  def restart(game, user) do
     new()
   end
 end
