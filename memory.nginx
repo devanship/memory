@@ -2,7 +2,7 @@ server {
     listen 80;
     listen [::]:80;
 
-    server_name hw04.dpatelcs4550.com;
+    server_name hw05.dpatelcs4550.com;
 
     location / {
         proxy_pass http://localhost:4791;
