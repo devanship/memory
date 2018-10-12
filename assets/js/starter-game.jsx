@@ -52,7 +52,7 @@ class Starter extends React.Component {
 
   click(i) {
     this.channel.push("click", { i: i })
-    // .receive("ok", this.gotView.bind(this))
+    .receive("ok", this.gotView.bind(this))
     .receive("unflip", this.unflip.bind(this))
   }
 

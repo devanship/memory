@@ -6,6 +6,7 @@ defmodule MemoryWeb.GamesChannel do
   def join("games:" <> game, payload, socket) do
     socket = assign(socket, :game, game)
     view = GameServer.view(game, socket.assigns[:user])
+    |>IO.inspect
     {:ok, %{"join" => game, "game" => view}, socket}
 
   end

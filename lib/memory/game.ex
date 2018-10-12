@@ -113,7 +113,8 @@ defmodule Memory.Game do
 
           updatedPlayers = Enum.map(game.players, fn (p) -> %{p | isActive: !p.isActive} end)
 
-      Map.put(game, :cards, updatedCards)
+      game
+      |> Map.put(:cards, updatedCards)
       |> Map.put(:clickable, true)
       |> Map.put(:players, updatedPlayers)
     end
@@ -140,7 +141,8 @@ defmodule Memory.Game do
       #     playerId: Enum.at(game.players, Enum.find_index(game.players, fn p -> p.name == player.name end)).playerId})
       updatedPlayers = Enum.map(game.players, fn (p) -> %{p | isActive: !p.isActive} end)
 
-      Map.put(game, :cards, updatedCards)
+      game
+      |> Map.put(:cards, updatedCards)
       |> Map.put(:status, game.status + 1)
       |> Map.put(:clickable, true)
       |> Map.put(:players, updatedPlayers)
@@ -157,7 +159,6 @@ defmodule Memory.Game do
       game
       |> Map.put(:players, updatedPlayers)
       |> Map.put(:clickable, player.cardsFlipped == 0)
-      |> IO.inspect
     end
   end
 
@@ -203,10 +204,8 @@ defmodule Memory.Game do
         checkMatch(updatedGame, player, i)
         |> Map.put(:firstCard, if(player.cardsFlipped == 0, do: i, else: game.firstCard))
         |> Map.put(:clicks, game.clicks + 1)
-
       else
         game
-
       end
     end
   end
